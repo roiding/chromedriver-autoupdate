@@ -21,7 +21,7 @@ jobs:
         python-version: '3.x'
     - name: Get version
       id: get_version
-      run: echo :: set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
     - name: Change version
       run: |
         sed 's/x\.\.x/${{steps.get_version.output.VERSION}}/' setup.py
