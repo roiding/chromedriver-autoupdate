@@ -24,7 +24,7 @@ jobs:
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
     - name: Change version
       env: 
-        VERSION : ${{steps.get_version.output.VERSION}}
+        VERSION : ${{steps.get_version.outputs.VERSION}}
       run: |
         sed -i 's/x\.x\.x/$VERSION/' setup.py
     - name: Install dependencies
