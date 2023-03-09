@@ -50,9 +50,9 @@ def _getChromeVersion():
         path=_checkPathExit(chrome_path)
         return _matchChromeVersion(path+" --version")
     elif platform_name == "Windows":
-        chrome_path=('C:/Program Files/Google/Chrome/Application/chrome.exe','C:/Program Files (x86)/Google/Chrome/Application/chrome.exe');
+        chrome_path=('C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe','C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe');
         path=_checkPathExit(chrome_path)
-        return _matchChromeVersion("wmic datafile where name='{%s}' get Version /value".format(path))
+        return _matchChromeVersion("wmic datafile where name=\"%s\" get Version /value"%(path))
     else:
         raise RuntimeError("该操作系统暂不支持")
 
@@ -60,8 +60,7 @@ def _getChromeVersion():
 def _checkPathExit(tupleList:tuple):
     for path in tupleList:
         if os.path.exists(path):
-            # os.path时可以接受文件名字带空格 Popen不行
-            return path.replace(' ','\ ')
+            return path
     raise RuntimeError("Chrome未安装在默认路径下")
 
 
@@ -69,6 +68,8 @@ def _matchChromeVersion(command:str):
     process=subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     (version_str,stderr)=process.communicate()
     return version_re.findall(version_str.decode('utf-8'))[0]
+    
+
 
 # 淘宝源获取
 def _downLoadDriver(version, save_d):
@@ -136,3 +137,7 @@ def _driverRunableConfig(driver_path:str):
     if platform.system() == "Darwin":
         #  需要过验证
         subprocess.Popen("xattr -d com.apple.quarantine "+driver_path,shell=True)
+
+
+if __name__=="__main__":
+    print(_getChromeVersion())
