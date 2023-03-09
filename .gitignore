@@ -1,4 +1,4 @@
 build
-chromedriver*/
+*egg-info/
 dist
 .venv
