@@ -137,7 +137,3 @@ def _driverRunableConfig(driver_path:str):
     if platform.system() == "Darwin":
         #  需要过验证
         subprocess.Popen("xattr -d com.apple.quarantine "+driver_path,shell=True)
-
-
-if __name__=="__main__":
-    print(_getChromeVersion())
