@@ -21,7 +21,11 @@ driver_path: chrome_driver的路径
 '''
 def checkAndUpdate(driver_path:str):
     chrome_version=_getChromeVersion()
-    driver=os.path.join(driver_path,"chromedriver")
+    platform_name=platform.system()
+    if platform_name == "Windows":
+        driver=os.path.join(driver_path,"chromedriver.exe")
+    else:
+        driver=os.path.join(driver_path,"chromedriver")
     if os.path.exists(driver):
         os.chmod(driver,755)
         driver_version = _matchChromeVersion(driver+" --version")
@@ -37,6 +41,7 @@ def checkAndUpdate(driver_path:str):
     # 赋执行权限
     os.chmod(driver,755)
     # _driverRunableConfig(driver)
+    return os.path.realpath(driver)
 
     
 
@@ -131,7 +136,9 @@ def _downLoadDriver(version, save_d):
             bar.update(size)
     # 下载完成后解压
     zFile = zipfile.ZipFile(temp_driver_zip, 'r')
-    zFile.extract("chromedriver",save_d)
+    for file in zFile.filelist:
+        if file.filename.startswith("chromedriver"):
+            zFile.extract(file,save_d)
     zFile.close()
     shutil.rmtree(temp_path)
 
