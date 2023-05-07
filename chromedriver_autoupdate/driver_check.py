@@ -10,7 +10,10 @@ import zipfile  # 操作.zip文件
 import requests
 from tqdm import tqdm
 from urllib3.exceptions import InsecureRequestWarning
-
+'''
+ODO 还有一种方式获取版本
+https://sites.google.com/a/chromium.org/chromedriver/downloads/version-selection
+'''
 # 匹配三位版本号的正则
 version_re =re.compile(r'[1-9]\d*\.\d*\.\d*')
 '''
