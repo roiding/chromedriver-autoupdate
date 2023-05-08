@@ -55,7 +55,7 @@ def _getChromeVersion():
         return _matchChromeVersion(path+" --version")
     elif platform_name == "Darwin":
         chrome_path=('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',)
-        path=_checkPathExit(chrome_path)
+        path=_checkPathExit(chrome_path).replace(' ','\ ')
         return _matchChromeVersion(path+" --version")
     elif platform_name == "Windows":
         chrome_path=('C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe','C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe');
