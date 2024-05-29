@@ -91,26 +91,60 @@ def _downLoadDriver(version, save_d):
     # '<a href="/mirrors/chromedriver/84.0.4147.30/">84.0.4147.30/</a>'
 
     directory = re.compile(version.replace(".","\.")+"\.\d+").findall(rep.text)  # 匹配文件夹（版本号）
-
-    # 获取期望的文件夹（版本号）
-   
-    # https://registry.npmmirror.com/-/binary/chromedriver/83.0.4103.39/chromedriver_win32.zip
-    dirUrl = url+"/"+directory[-1]
-
     # 判断系统版本
     platform_name=platform.system()
-    if platform_name == "Linux":
-        downUrl = dirUrl+'/chromedriver_linux64.zip'
-    elif platform_name == "Darwin":
-        # intel芯片
-        if platform.machine() == 'x86_64':
-            downUrl = dirUrl+'/chromedriver_mac64.zip'
+    # 获取期望的文件夹（版本号）
+    if len(directory)!=0:
+        # 淘宝源有driver
+        # https://registry.npmmirror.com/-/binary/chromedriver/83.0.4103.39/chromedriver_win32.zip
+        dirUrl = url+"/"+directory[-1]
+        if platform_name == "Linux":
+            downUrl = dirUrl+'/chromedriver_linux64.zip'
+        elif platform_name == "Darwin":
+            # intel芯片
+            if platform.machine() == 'x86_64':
+                downUrl = dirUrl+'/chromedriver_mac64.zip'
+            else:
+                downUrl = dirUrl+'/chromedriver_mac_arm64.zip'
+        elif platform_name == "Windows":
+            # intel芯片
+            if platform.machine() == 'x86_64':
+                downUrl = dirUrl+  '/chromedriver_win32.zip'
+            else:
+                downUrl = dirUrl+  '/chromedriver_win64.zip'
         else:
-            downUrl = dirUrl+'/chromedriver_mac_arm64.zip'
-    elif platform_name == "Windows":
-        downUrl = dirUrl+'/chromedriver_win32.zip'
+            raise RuntimeError("该操作系统暂不支持")
     else:
-        raise RuntimeError("该操作系统暂不支持")
+        # 去google直接下载
+        result=requests.get("https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json",verify=False).json().get("versions")
+        class BreakLoop(Exception):
+            pass
+        # 倒序循环results
+        try:
+            for item in result[::-1]:
+                if item.get("version").startswith(version):
+                    url_items=item.get("downloads").get("chromedriver")
+                    if platform_name == "Linux":
+                        _platform = 'linux64'
+                    elif platform_name == 'Darwin':
+                        if platform.machine() == 'x86_64':
+                            _platform = 'mac-arm64'
+                        else:
+                            _platform = 'mac-x64'
+                    elif platform_name == "Windows":
+                        if platform.machine() == 'x86_64':
+                            _platform = 'win64'
+                        else:
+                            _platform = 'win32'
+                    else:
+                        raise RuntimeError("该操作系统暂不支持")
+                    for url_item in url_items:
+                        if url_item.get("platform") == _platform:
+                            downUrl = url_item.get("url")
+                            raise BreakLoop
+        except BreakLoop:
+            pass
+                        
 
     print('将要下载 {}'.format(downUrl))
 
@@ -135,11 +169,17 @@ def _downLoadDriver(version, save_d):
             size = file.write(data)
             bar.update(size)
     # 下载完成后解压
-    zFile = zipfile.ZipFile(temp_driver_zip, 'r')
-    for file in zFile.filelist:
-        if file.filename.startswith("chromedriver"):
-            zFile.extract(file,save_d)
-    zFile.close()
+    with zipfile.ZipFile(temp_driver_zip, 'r') as zFile:
+        for file in zFile.filelist:
+            if os.path.basename(file.filename).startswith("chromedriver"):
+                # 获取文件的名字，去除路径信息
+                filename = os.path.basename(file.filename)
+                if filename:  # 确保不是一个空的文件夹条目
+                    # 构造目标文件路径
+                    dest = os.path.join(save_d, filename)
+                    # 提取文件到目标路径
+                    with zFile.open(file.filename) as source, open(dest, 'wb') as target:
+                        target.write(source.read())
     shutil.rmtree(temp_path)
 
 def _driverRunableConfig(driver_path:str):

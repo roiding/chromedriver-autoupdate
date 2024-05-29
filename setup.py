@@ -9,7 +9,7 @@ setuptools.setup(
     name="chromedriver_autoupdate", #模块名称
     version='x.x.x', #当前版本
     author="roiding", # 作者
-    author_email="dingran@ran-ding.ga", #作者邮箱
+    author_email="maodoulove19950815@gmail.com", #作者邮箱
     description="chromedriver的自动更新", #模块介绍
     long_description=long_description, #模块详细介绍
     long_description_content_type="text/markdown", #模块详细介绍格式
